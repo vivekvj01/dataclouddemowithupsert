@@ -17,15 +17,19 @@ app.get('/', (req, res) => {
 app.post('/api/bookings', async (req, res) => {
     const { guestName } = req.body;
     const { logger, sdk } = req;
+    logger.info('getting guest name' + guestName);
 
     if (!guestName) {
         return res.status(400).json({ error: 'Guest name is required' });
     }
+logger.info('Getting before trying to query');
 
     try {
+    logger.info('getting developer name ');
         const orgName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        logger.info('gettomg SDK');
         const appLinkAddon = sdk.addons.applink;
-
+        logger.info('gettomg SDK');
         logger.info(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
 
