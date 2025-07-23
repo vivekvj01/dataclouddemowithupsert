@@ -45,12 +45,12 @@ app.post('/api/bookings', async (request, res) => {
 
         const query = `
             SELECT *
-            FROM "Reservation__dlm"
-            JOIN "ssot__Individual__dlm"
-            ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c"
-            WHERE ( "ssot__Individual__dlm"."ssot__FirstName__c"
+            FROM \\"Reservation__dlm\\"
+            JOIN \\"ssot__Individual__dlm\\"
+            ON \\"Reservation__dlm\\".\\"Contact_ID__c\\" = \\"ssot__Individual__dlm\\".\\"ssot__Id__c\\"
+            WHERE ( \\"ssot__Individual__dlm\\".\\"ssot__FirstName__c\\"
                 || ' '
-                || "ssot__Individual__dlm"."ssot__LastName__c"
+                || \\"ssot__Individual__dlm\\".\\"ssot__LastName__c\\"
                 )
             = 'Sofia Rodriguez'`;
 
