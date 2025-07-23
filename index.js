@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const applink = require('@heroku/applink');
-// const axios = require('axios'); // No longer needed
+const axios = require('axios');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -48,8 +48,6 @@ app.post('/api/bookings', async (request, res) => {
 
         console.log('Executing query:', query);
 
-        console.log('org.dataCloudApi:', org.dataCloudApi);
-
         // Construct the direct API request
         const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
         const token = org.dataCloudApi.accessToken;
@@ -66,10 +64,6 @@ app.post('/api/bookings', async (request, res) => {
                 'Content-Type': 'application/json'
             }
         });
-
-        // const response = await org.dataCloudApi.query(query);
-        // console.log(`Query response: ${JSON.stringify(response)}`);
-        // res.json(response);
 
         console.log(`Direct API response: ${JSON.stringify(response.data)}`);
         res.json(response.data);
