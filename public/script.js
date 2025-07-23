@@ -62,7 +62,12 @@ document.getElementById('searchButton').addEventListener('click', async () => {
             records.forEach(record => {
                 html += '<tr>';
                 columns.forEach(column => {
-                    html += `<td>${record[column] !== null ? record[column] : ''}</td>`;
+                    let value = record[column];
+                    // Format 'Number of Adults' to be an integer
+                    if (column === 'Number_of_Adults__c' && value !== null) {
+                        value = parseInt(value, 10);
+                    }
+                    html += `<td>${value !== null ? value : ''}</td>`;
                 });
                 html += '</tr>';
             });
