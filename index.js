@@ -51,10 +51,10 @@ app.post('/api/bookings', async (request, res) => {
         console.log('org.dataCloudApi:', org.dataCloudApi);
 
         // Construct the direct API request
-        const url = `${org.dataCloudApi.url}/api/v2/query`;
+        const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
         const token = org.dataCloudApi.accessToken;
         const body = {
-            sql: "SELECT * FROM Reservation__dll LIMIT 10"
+            sql: "SELECT Reservation__dlm.Reservation_ID__c FROM Reservation__dlm JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c"
         };
         console.log('Direct API Call URL:', url);
         console.log('Direct API Call Token:', token);
