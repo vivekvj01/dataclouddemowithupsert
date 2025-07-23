@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const applink = require('@heroku/applink');
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -10,7 +9,6 @@ const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
-app.use(applink());
 
 app.get('/', (req, res) => {
     res.send('Data Cloud Demo App is running.');
