@@ -1,0 +1,13 @@
+mesh:
+  authentication:
+    bypassRoutes:
+      - /
+      - /style.css
+      - /script.js
+      - /api/bookings
+      - /api-docs*
+      - /bypassApi
+      - /favicon*
+      - /index.css
+      - /swagger*
+      - /handleEvent 
