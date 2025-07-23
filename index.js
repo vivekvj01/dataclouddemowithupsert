@@ -1,11 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { sdk } = require('@heroku/app-link');
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
+app.use(sdk());
 
 app.get('/', (req, res) => {
     res.send('Data Cloud Demo App is running.');
@@ -20,14 +25,21 @@ app.post('/api/bookings', async (req, res) => {
     }
 
     try {
+        const orgName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        const appLinkAddon = sdk.addons.applink;
+
+        logger.info(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
+        const org = await appLinkAddon.getAuthorization(orgName);
+
         const query = `
             SELECT * 
             FROM Reservation__dlm 
             JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c
             WHERE ssot__Individual__dlm.ssot__FirstName__c || ' ' || ssot__Individual__dlm.ssot__LastName__c = '${guestName}'
         `;
-
-        const response = await sdk.data.query(query);
+        
+        logger.info(`Querying org '${orgName}' (${org.id}): ${query}`);
+        const response = await org.dataApi.query(query);
         logger.info(`Query response: ${JSON.stringify(response.data || {})}`);
         res.json(response.data);
     } catch (error) {
