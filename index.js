@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const applink = require('@heroku/applink');
+
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -18,7 +20,7 @@ app.get('/', (req, res) => {
  * @param {import('express').Request} request
  * @param {import('express').Response} res
  */
-app.post('/api/bookings', async (request, res) => {
+app.post('/api/bookings', applink(), async (request, res) => {
     const { guestName } = request.body;
     console.log('getting guest name: ' + guestName);
 
@@ -53,5 +55,5 @@ app.post('/api/bookings', async (request, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`App listening on port ${port}`);
 }); 
