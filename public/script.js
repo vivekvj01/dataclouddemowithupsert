@@ -27,6 +27,21 @@ document.getElementById('searchButton').addEventListener('click', async () => {
             }
             const columns = Object.values(columnMap);
 
+            // Mappings for prettier column headers
+            const headerMappings = {
+                'Rate_Plan__c': 'Plan',
+                'Number_of_Adults__c': 'Number of Adults',
+                'Room_Number__c': 'Room Number',
+                'Room_Type__c': 'Type',
+                'ssot__TitleName__c': 'Title',
+                'ssot__FirstName__c': 'First Name',
+                'ssot__LastName__c': 'Last Name',
+                'Check_in_Date__c': 'Check-in Date',
+                'Check_out_Date__c': 'Check-out Date',
+                'Total_Price__c': 'Total Price',
+                'Reservation_Status__c': 'Status'
+            };
+
             // Convert array of arrays to array of objects
             const records = result.data.map(row => {
                 const record = {};
@@ -39,7 +54,8 @@ document.getElementById('searchButton').addEventListener('click', async () => {
             // Generate an HTML table
             let html = '<h2>Bookings</h2><table><thead><tr>';
             columns.forEach(column => {
-                html += `<th>${column}</th>`;
+                const header = headerMappings[column] || column;
+                html += `<th>${header}</th>`;
             });
             html += '</tr></thead><tbody>';
 
