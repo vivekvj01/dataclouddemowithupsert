@@ -43,11 +43,7 @@ app.post('/api/bookings', async (request, res) => {
         const org = await appLinkAddon.getAuthorization(orgName);
         console.log('got the Authorization:', org);
 
-        const query = `
-            SELECT "Reservation__dlm"."Reservation_ID__c"
-            FROM "Reservation__dlm" 
-            JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c"
-        `;
+        const query = "SELECT Reservation__dlm.Reservation_ID__c FROM Reservation__dlm JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c";
 
         console.log('Executing query:', query);
 
