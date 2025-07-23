@@ -9,7 +9,6 @@
   "dependencies": {
     "express": "^4.19.2",
     "body-parser": "^1.20.2",
-    "@heroku/applink": "latest",
     "dotenv": "^16.4.5"
   },
   "engines": {
