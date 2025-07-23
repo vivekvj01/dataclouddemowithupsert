@@ -28,7 +28,8 @@ app.post('/api/bookings', async (req, res) => {
         console.log('getting developer name');
         const orgName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
         console.log('getting SDK');
-        const appLinkAddon = sdk.addons.applink;
+        const appLinkAddon = request.sdk.addons.applink;
+        console.log('got the SDK');
         console.log(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
 
