@@ -14,9 +14,12 @@ app.get('/', (req, res) => {
     res.send('Data Cloud Demo App is running.');
 });
 
-app.post('/api/bookings', async (req, res) => {
-    const { guestName } = req.body;
-    const { sdk } = req;
+/**
+ * @param {import('express').Request} request
+ * @param {import('express').Response} res
+ */
+app.post('/api/bookings', async (request, res) => {
+    const { guestName } = request.body;
     console.log('getting guest name: ' + guestName);
 
     if (!guestName) {
