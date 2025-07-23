@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const dataCloudService = require('./data-cloud-service');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +13,7 @@ app.get('/', (req, res) => {
 
 app.post('/api/bookings', async (req, res) => {
     const { guestName } = req.body;
+    const { logger, sdk } = req;
 
     if (!guestName) {
         return res.status(400).json({ error: 'Guest name is required' });
@@ -27,10 +27,11 @@ app.post('/api/bookings', async (req, res) => {
             WHERE ssot__Individual__dlm.ssot__FirstName__c || ' ' || ssot__Individual__dlm.ssot__LastName__c = '${guestName}'
         `;
 
-        const result = await dataCloudService.query(query);
-        res.json(result);
+        const response = await sdk.data.query(query);
+        logger.info(`Query response: ${JSON.stringify(response.data || {})}`);
+        res.json(response.data);
     } catch (error) {
-        console.error('Error querying Data Cloud:', error);
+        logger.error('Error querying Data Cloud:', error);
         res.status(500).json({ error: 'Failed to fetch bookings from Data Cloud' });
     }
 });
