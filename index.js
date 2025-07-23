@@ -9,6 +9,9 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Initialize the AppLink SDK and attach it to app.locals
+app.locals.sdk = applink.init();
+
 app.use(express.static('public'));
 app.use(bodyParser.json());
 
@@ -20,7 +23,7 @@ app.get('/', (req, res) => {
  * @param {import('express').Request} request
  * @param {import('express').Response} res
  */
-app.post('/api/bookings', applink(), async (request, res) => {
+app.post('/api/bookings', async (request, res) => {
     const { guestName } = request.body;
     console.log('getting guest name: ' + guestName);
 
@@ -33,7 +36,8 @@ app.post('/api/bookings', applink(), async (request, res) => {
         console.log('getting developer name');
         const orgName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
         console.log('getting SDK');
-        const appLinkAddon = request.sdk.addons.applink;
+        // Access the SDK from app.locals
+        const appLinkAddon = request.app.locals.sdk.addons.applink;
         console.log('got the SDK');
         console.log(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
