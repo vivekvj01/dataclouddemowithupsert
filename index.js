@@ -42,11 +42,12 @@ app.post('/api/bookings', async (request, res) => {
         console.log(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
         console.log('got the Authorization:', org);
+
         const query = `
             SELECT * 
-            FROM Reservation__dlm 
-            JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c
-            WHERE ssot__Individual__dlm.ssot__FirstName__c || ' ' || ssot__Individual__dlm.ssot__LastName__c = '${guestName}'
+            FROM "Reservation__dlm" 
+            JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c"
+            WHERE "ssot__Individual__dlm"."ssot__FirstName__c" || ' ' || "ssot__Individual__dlm"."ssot__LastName__c" = '${guestName}'
         `;
 
         console.log('Executing query:', query);
