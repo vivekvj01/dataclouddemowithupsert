@@ -43,7 +43,7 @@ app.post('/api/bookings', async (request, res) => {
         const org = await appLinkAddon.getAuthorization(orgName);
         console.log('got the Authorization:', JSON.stringify(org, null, 2));
 
-        const query = "SELECT * FROM Reservation__dlm JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c WHERE ( ssot__Individual__dlm.ssot__FirstName__c || ' ' || ssot__Individual__dlm.ssot__LastName__c ) = 'Sofia Rodriguez'";
+        const query = "SELECT * FROM \"Reservation__dlm\" JOIN \"ssot__Individual__dlm\" ON \"Reservation__dlm\".\"Contact_ID__c\" = \"ssot__Individual__dlm\".\"ssot__Id__c\" WHERE ( \"ssot__Individual__dlm\".\"ssot__FirstName__c\" || ' ' || \"ssot__Individual__dlm\".\"ssot__LastName__c\" ) = 'Sofia Rodriguez'";
 
         console.log('Executing query:', query);
 
