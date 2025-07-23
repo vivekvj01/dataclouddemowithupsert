@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const applink = require('@heroku/applink');
-const axios = require('axios');
+// const axios = require('axios'); // No longer needed
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -43,8 +43,8 @@ app.post('/api/bookings', async (request, res) => {
         console.log(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
         console.log('got the Authorization:', org);
-        console.log('got the Authorization:', org.dataCloudApi.accessToken);
-        const query = "SELECT * FROM Reservation__dll LIMIT 10";
+
+        const query = `SELECT * FROM "Reservation__dlm" JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c" WHERE ( "ssot__Individual__dlm"."ssot__FirstName__c" || ' ' || "ssot__Individual__dlm"."ssot__LastName__c" ) = '${guestName}'`;
 
         console.log('Executing query:', query);
 
@@ -54,7 +54,7 @@ app.post('/api/bookings', async (request, res) => {
         const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
         const token = org.dataCloudApi.accessToken;
         const body = {
-            sql: "SELECT Reservation__dlm.Reservation_ID__c FROM Reservation__dlm JOIN ssot__Individual__dlm ON Reservation__dlm.Contact_ID__c = ssot__Individual__dlm.ssot__Id__c"
+            sql: query
         };
         console.log('Direct API Call URL:', url);
         console.log('Direct API Call Token:', token);

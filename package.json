@@ -10,8 +10,7 @@
     "express": "^4.19.2",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
-    "@heroku/applink": "latest",
-    "axios": "^1.7.2"
+    "@heroku/applink": "latest"
   },
   "engines": {
     "node": "18.x"
