@@ -49,6 +49,8 @@ app.post('/api/bookings', async (request, res) => {
             WHERE ssot__Individual__dlm.ssot__FirstName__c || ' ' || ssot__Individual__dlm.ssot__LastName__c = '${guestName}'
         `;
 
+        console.log('Executing query:', query);
+
         const response = await org.dataCloudApi.query(query);
         console.log(`Query response: ${JSON.stringify(response)}`);
         res.json(response);
