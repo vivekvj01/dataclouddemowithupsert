@@ -41,7 +41,7 @@ app.post('/api/bookings', async (request, res) => {
         console.log('got the SDK');
         console.log(`Getting '${orgName}' org connection from Heroku AppLink add-on...`);
         const org = await appLinkAddon.getAuthorization(orgName);
-        console.log('got the Authorization:', org);
+        console.log('got the Authorization:', JSON.stringify(org, null, 2));
 
         const query = "SELECT * FROM Reservation__dll LIMIT 10"
         console.log('Executing query:', query);
