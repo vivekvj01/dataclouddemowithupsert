@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const applink = require('@heroku/applink');
+const axios = require('axios');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -48,9 +49,30 @@ app.post('/api/bookings', async (request, res) => {
         console.log('Executing query:', query);
 
         console.log('org.dataCloudApi:', org.dataCloudApi);
-        const response = await org.DataApi.query(query);
-        console.log(`Query response: ${JSON.stringify(response)}`);
-        res.json(response);
+
+        // Construct the direct API request
+        const url = `${org.dataCloudApi.url}/api/v2/query`;
+        const token = org.dataCloudApi.accessToken;
+        const body = {
+            sql: "SELECT * FROM Reservation__dll LIMIT 10"
+        };
+        console.log('Direct API Call URL:', url);
+        console.log('Direct API Call Token:', token);
+        console.log('Direct API Call Body:', body);
+
+        const response = await axios.post(url, body, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // const response = await org.dataCloudApi.query(query);
+        // console.log(`Query response: ${JSON.stringify(response)}`);
+        // res.json(response);
+
+        console.log(`Direct API response: ${JSON.stringify(response.data)}`);
+        res.json(response.data);
     } catch (error) {
         console.error('Error querying Data Cloud:', error);
         res.status(500).json({ error: 'Failed to fetch bookings from Data Cloud' });
