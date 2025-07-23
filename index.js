@@ -44,10 +44,9 @@ app.post('/api/bookings', async (request, res) => {
         console.log('got the Authorization:', org);
 
         const query = `
-            SELECT * 
+            SELECT "Reservation__dlm"."Reservation_ID__c"
             FROM "Reservation__dlm" 
             JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c"
-            WHERE "ssot__Individual__dlm"."ssot__FirstName__c" || ' ' || "ssot__Individual__dlm"."ssot__LastName__c" = '${guestName}'
         `;
 
         console.log('Executing query:', query);
