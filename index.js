@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { sdk } = require('@heroku/app-link');
+const { sdk } = require('@heroku/applink');
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
