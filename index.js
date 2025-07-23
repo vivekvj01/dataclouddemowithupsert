@@ -52,6 +52,7 @@ app.post('/api/bookings', async (request, res) => {
 
         console.log('Executing query:', query);
 
+        console.log('org.dataCloudApi:', org.dataCloudApi);
         const response = await org.dataCloudApi.query(query);
         console.log(`Query response: ${JSON.stringify(response)}`);
         res.json(response);
