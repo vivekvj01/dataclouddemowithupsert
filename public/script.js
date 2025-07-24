@@ -125,18 +125,25 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
                 return record;
             });
 
+            const displayColumns = {
+                'ssot__FirstName__c': 'First Name',
+                'ssot__LastName__c': 'Last Name',
+                'ssot__ExternalSourceId__c': 'Source',
+                'ssot__DataSourceObjectId__c': 'Data Source Object'
+            };
+
             let html = '<h3>Individual Created/Updated Successfully</h3><table><thead><tr>';
             html += '<th>Status</th>'; // Header for the checkmark column
-            columns.forEach(column => {
-                html += `<th>${column}</th>`;
+            Object.values(displayColumns).forEach(header => {
+                html += `<th>${header}</th>`;
             });
             html += '</tr></thead><tbody>';
 
             records.forEach(record => {
                 html += '<tr>';
                 html += '<td style="color: green; font-size: 1.5rem; text-align: center;">✓</td>'; // Green checkmark
-                columns.forEach(column => {
-                    const value = record[column];
+                Object.keys(displayColumns).forEach(columnKey => {
+                    const value = record[columnKey];
                     html += `<td>${value !== null ? value : ''}</td>`;
                 });
                 html += '</tr>';
