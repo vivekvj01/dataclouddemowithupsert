@@ -103,6 +103,8 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
             body: JSON.stringify({ firstName, lastName }),
         });
 
+        console.log('Fetch response status:', response.status);
+
         if (!response.ok) {
             if (response.status === 408) {
                 const timeoutMessage = "Sorry we successfully inserted the record however the ingestion API is Async on Datalcoud please reach out to the Datacloud team or check your for your data by logging into your salesforce Data cloud org";
@@ -113,9 +115,14 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);
+
+        const result = JSON.parse(responseText);
+        console.log('Parsed JSON result:', result);
 
         if (result && result.data && result.data.length > 0) {
+            console.log('Data found in response, rendering table.');
             const resultDiv = document.getElementById('create-result');
             // Create a mapping from column order to column name
             const columnMap = {};
@@ -162,6 +169,7 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
             html += '</tbody></table>';
             resultDiv.innerHTML = html;
         } else {
+            console.log('No data found in response, showing failure message.');
             resultDiv.innerHTML = 'Individual created, but no data was returned from the confirmation query.';
         }
     } catch (error) {
