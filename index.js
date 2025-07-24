@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const applink = require('@heroku/applink');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -29,20 +30,23 @@ app.post('/api/individual', async (request, res) => {
         const appLinkAddon = request.app.locals.sdk.addons.applink;
         const org = await appLinkAddon.getAuthorization(authName);
 
-        // const result = await org.dataCloudApi.upsert('ssot__Individual__dlm', {
-        //     data: [{
-        //         ssot__FirstName__c: firstName,
-        //         ssot__LastName__c: lastName
-        //     }]
-        // });
-
-        const objectName = 'ssot__Individual__dlm';
+        const objectName = 'HerokuIndividual'; // Using the compliant object name from the schema
         const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/sources/${authName}/${objectName}`;
         const token = org.dataCloudApi.accessToken;
+
+        const eventId = uuidv4();
+        const eventTime = new Date().toISOString();
+
         const body = {
             data: [{
-                ssot__FirstName__c: firstName,
-                ssot__LastName__c: lastName
+                FirstName: firstName, // Using compliant field name
+                LastName: lastName, // Using compliant field name
+                eventId: eventId,
+                dateTime: eventTime,
+                deviceId: 'Heroku-WebApp', // Static value for server-side events
+                eventType: 'ProfileUpdate', // Custom event type
+                category: 'Profile', // Should be 'Profile' for this DLO
+                sessionId: eventId // Using eventId as a unique session for this event
             }]
         };
 

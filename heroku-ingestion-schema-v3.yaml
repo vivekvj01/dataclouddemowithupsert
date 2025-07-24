@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: Heroku Individual Ingestion
+  version: 3.0.0
+  description: "Compliant schema for creating or updating an individual's profile data from a Heroku app. This source object should be mapped to the ssot__Individual__dlm Data Lake Object in Data Cloud."
+paths: {}
+components:
+  schemas:
+    HerokuIndividual: # Compliant object name (no double underscores)
+      type: object
+      description: "Represents an individual's profile information."
+      required:
+        - eventId
+        - dateTime
+        - deviceId
+        - eventType
+        - category
+        - sessionId
+        - FirstName
+        - LastName
+      properties:
+        # User-provided data fields with compliant names
+        FirstName:
+          type: string
+          description: "The individual's first name. To be mapped to ssot__FirstName__c."
+        LastName:
+          type: string
+          description: "The individual's last name. To be mapped to ssot__LastName__c."
+
+        # Mandatory fields for Data Cloud Ingestion API
+        eventId:
+          type: string
+          description: "Unique identifier for this ingestion event."
+        dateTime:
+          type: string
+          format: date-time
+          description: "The ISO 8601 timestamp of when the event occurred."
+        deviceId:
+          type: string
+          description: "Identifier for the device or system where the event originated."
+        eventType:
+          type: string
+          description: "The type of event (e.g., 'ProfileUpdate')."
+        category:
+          type: string
+          description: "The event category. Must be 'Profile' for this object."
+        sessionId:
+          type: string
+          description: "Identifier for the user's session." 
