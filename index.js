@@ -29,14 +29,30 @@ app.post('/api/individual', async (request, res) => {
         const appLinkAddon = request.app.locals.sdk.addons.applink;
         const org = await appLinkAddon.getAuthorization(authName);
 
-        const result = await org.dataCloudApi.upsert('ssot__Individual__dlm', {
+        // const result = await org.dataCloudApi.upsert('ssot__Individual__dlm', {
+        //     data: [{
+        //         ssot__FirstName__c: firstName,
+        //         ssot__LastName__c: lastName
+        //     }]
+        // });
+
+        const objectName = 'ssot__Individual__dlm';
+        const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/sources/${authName}/${objectName}`;
+        const token = org.dataCloudApi.accessToken;
+        const body = {
             data: [{
                 ssot__FirstName__c: firstName,
                 ssot__LastName__c: lastName
             }]
-        });
+        };
 
-        res.json(result);
+        const response = await axios.post(url, body, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        res.json(response.data);
     } catch (error) {
         console.error('Error upserting to Data Cloud:', error);
         res.status(500).json({ error: 'Failed to create individual in Data Cloud' });
