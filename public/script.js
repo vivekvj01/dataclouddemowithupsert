@@ -1,4 +1,19 @@
-document.getElementById('searchButton').addEventListener('click', async () => {
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tab-link");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+document.getElementById('search-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
     const guestName = document.getElementById('guestName').value;
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = 'Loading...';
@@ -13,49 +28,19 @@ document.getElementById('searchButton').addEventListener('click', async () => {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to fetch bookings');
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
+        const data = await response.json();
 
-        if (result.done === false || (result.data && result.data.length > 0)) {
-            // Create a mapping from column order to column name
-            const columnMap = {};
-            for (const key in result.metadata) {
-                columnMap[result.metadata[key].placeInOrder] = key;
-            }
-            const columns = Object.values(columnMap);
+        if (data && data.data && data.data.length > 0) {
+            const records = data.data;
+            const columns = data.metadata.columns;
 
-            // Mappings for prettier column headers
-            const headerMappings = {
-                'Rate_Plan__c': 'Plan',
-                'Number_of_Adults__c': 'Number of Adults',
-                'Room_Number__c': 'Room Number',
-                'Room_Type__c': 'Type',
-                'ssot__TitleName__c': 'Title',
-                'ssot__FirstName__c': 'First Name',
-                'ssot__LastName__c': 'Last Name',
-                'Check_in_Date__c': 'Check-in Date',
-                'Check_out_Date__c': 'Check-out Date',
-                'Total_Price__c': 'Total Price',
-                'Reservation_Status__c': 'Status'
-            };
-
-            // Convert array of arrays to array of objects
-            const records = result.data.map(row => {
-                const record = {};
-                row.forEach((value, index) => {
-                    record[columns[index]] = value;
-                });
-                return record;
-            });
-
-            // Generate an HTML table
-            let html = '<h2>Bookings</h2><table><thead><tr>';
+            let html = '<table><thead><tr>';
             columns.forEach(column => {
-                const header = headerMappings[column] || column;
-                html += `<th>${header}</th>`;
+                html += `<th>${column}</th>`;
             });
             html += '</tr></thead><tbody>';
 
@@ -75,10 +60,37 @@ document.getElementById('searchButton').addEventListener('click', async () => {
             html += '</tbody></table>';
             resultsDiv.innerHTML = html;
         } else {
-            resultsDiv.innerHTML = `No bookings found for ${guestName}`;
+            resultsDiv.innerHTML = 'No bookings found for this guest.';
         }
     } catch (error) {
-        resultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        resultsDiv.innerHTML = `Error: ${error.message}`;
         console.error('Fetch error:', error);
+    }
+});
+
+document.getElementById('create-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const resultDiv = document.getElementById('create-result');
+    resultDiv.innerHTML = 'Creating individual...';
+
+    try {
+        const response = await fetch('/api/individual', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ firstName, lastName }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        resultDiv.innerHTML = `Success: ${JSON.stringify(result, null, 2)}`;
+    } catch (error) {
+        resultDiv.innerHTML = `Error: ${error.message}`;
+        console.error('Create individual error:', error);
     }
 }); 

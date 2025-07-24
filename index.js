@@ -17,6 +17,32 @@ app.get('/', (req, res) => {
     res.send('Data Cloud Demo App is running.');
 });
 
+app.post('/api/individual', async (request, res) => {
+    const { firstName, lastName } = request.body;
+
+    if (!firstName || !lastName) {
+        return res.status(400).json({ error: 'First name and last name are required' });
+    }
+
+    try {
+        const authName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        const appLinkAddon = request.app.locals.sdk.addons.applink;
+        const org = await appLinkAddon.getAuthorization(authName);
+
+        const result = await org.dataCloudApi.upsert('ssot__Individual__dlm', {
+            data: [{
+                ssot__FirstName__c: firstName,
+                ssot__LastName__c: lastName
+            }]
+        });
+
+        res.json(result);
+    } catch (error) {
+        console.error('Error upserting to Data Cloud:', error);
+        res.status(500).json({ error: 'Failed to create individual in Data Cloud' });
+    }
+});
+
 /**
  * @param {import('express').Request} request
  * @param {import('express').Response} res
@@ -34,6 +60,8 @@ app.post('/api/bookings', async (request, res) => {
         //org.domainUrl
         const query = `SELECT Rate_Plan__c , Number_of_Adults__c ,Room_Number__c , Room_Type__c Type, ssot__TitleName__c  FROM "Reservation__dlm" JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c" WHERE ( "ssot__Individual__dlm"."ssot__FirstName__c" || ' ' || "ssot__Individual__dlm"."ssot__LastName__c" ) = '${guestName}'`;
         // const result = await org.dataCloudApi.query(query); 
+        console.log(result);
+      
 
         // Construct the direct API request as we have a bug with the SDK query method https://gus.lightning.force.com/lightning/_classic/%2Fa07EE00002IrZXXYA3
         const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
