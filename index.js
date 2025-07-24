@@ -30,8 +30,9 @@ app.post('/api/individual', async (request, res) => {
         const appLinkAddon = request.app.locals.sdk.addons.applink;
         const org = await appLinkAddon.getAuthorization(authName);
 
+        const sourceName = 'Heroku'; // The name of the Ingestion API source connector
         const objectName = 'HerokuIndividual'; // Using the compliant object name from the schema
-        const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/sources/${authName}/${objectName}`;
+        const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/sources/${sourceName}/${objectName}`;
         const token = org.dataCloudApi.accessToken;
 
         const eventId = uuidv4();
