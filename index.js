@@ -65,8 +65,12 @@ app.post('/api/individual', async (request, res) => {
             }
         });
 
+        // Wait 30 seconds for data to become available before the first check
+        console.log('Ingestion request sent. Waiting 30 seconds before first query attempt...');
+        await sleep(30000);
+
         // Step 2: Poll for the data to confirm it was written
-        console.log('Ingestion successful. Polling for data...');
+        console.log('Polling for data...');
         const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
         const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__Id__c" = '${eventId}' LIMIT 1`;
         console.log('Confirmation Query:', query);
