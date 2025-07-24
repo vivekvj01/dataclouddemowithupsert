@@ -79,33 +79,41 @@ app.post('/api/individual', async (request, res) => {
         let queryResponse;
         let attempts = 0;
         const maxAttempts = 15; // 15 attempts * 20 seconds = 5 minutes
+        let dataFound = false;
 
-        while (attempts < maxAttempts) {
+        while (attempts < maxAttempts && !dataFound) {
             attempts++;
             console.log(`Query attempt ${attempts}...`);
-            queryResponse = await axios.post(queryUrl, queryBody, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            try {
+                queryResponse = await axios.post(queryUrl, queryBody, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            if (queryResponse.data && queryResponse.data.rowCount > 0) {
-                console.log('Data found!');
-                res.json(queryResponse.data);
-                return;
+                if (queryResponse.data && queryResponse.data.rowCount > 0) {
+                    console.log('Data found!');
+                    dataFound = true; // Exit loop
+                    res.json(queryResponse.data);
+                    return;
+                }
+            } catch (pollError) {
+                console.error(`Attempt ${attempts} failed:`, pollError.message);
+                // Don't exit, just log the error and wait for the next attempt
             }
 
-            if (attempts < maxAttempts) {
+            if (!dataFound && attempts < maxAttempts) {
                 console.log('Data not found, waiting 20 seconds...');
                 await sleep(20000); // Wait 20 seconds
             }
         }
 
         // If loop finishes without finding data
-        console.error('Polling timed out after 5 minutes.');
-        res.status(408).json({ error: 'Confirmation query timed out. The data was ingested but could not be retrieved in time.' });
-
+        if (!dataFound) {
+            console.error('Polling timed out after 5 minutes.');
+            res.status(408).json({ error: 'Confirmation query timed out. The data was ingested but could not be retrieved in time.' });
+        }
     } catch (error) {
         console.error('Error in upsert/query process:', error);
         res.status(500).json({ error: 'Failed to create individual in Data Cloud' });

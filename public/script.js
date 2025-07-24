@@ -159,9 +159,9 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
         } else {
             resultDiv.innerHTML = 'Individual created, but no data was returned from the confirmation query.';
         }
-
     } catch (error) {
-        document.getElementById('create-result').innerHTML = `Error: ${error.message}`;
+        const resultDiv = document.getElementById('create-result');
+        resultDiv.innerHTML = `Error: ${error.message}`;
         console.error('Create individual error:', error);
     }
 }); 
