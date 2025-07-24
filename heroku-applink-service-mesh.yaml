@@ -6,6 +6,7 @@ mesh:
       - /script.js
       - /api/bookings
       - /api/individual
+      - pathPrefix: /api/individual/status/
       - /api-docs*
       - /bypassApi
       - /favicon*
