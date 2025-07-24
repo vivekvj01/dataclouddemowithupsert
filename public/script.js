@@ -172,9 +172,16 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
             console.log('No data found in response, showing failure message.');
             resultDiv.innerHTML = 'Individual created, but no data was returned from the confirmation query.';
         }
+
     } catch (error) {
-        const resultDiv = document.getElementById('create-result');
-        resultDiv.innerHTML = `Error: ${error.message}`;
         console.error('Create individual error:', error);
+        const resultDiv = document.getElementById('create-result');
+        // A SyntaxError indicates the server sent HTML/text instead of JSON, likely due to a timeout.
+        if (error instanceof SyntaxError) {
+            const timeoutMessage = "Sorry we successfully inserted the record however the ingestion API is Async on Datalcoud please reach out to the Datacloud team or check your for your data by logging into your salesforce Data cloud org";
+            resultDiv.innerHTML = `<p style="color: #d9a22c;">${timeoutMessage}</p>`;
+        } else {
+            resultDiv.innerHTML = `Error: ${error.message}`;
+        }
     }
 }); 
