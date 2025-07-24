@@ -67,7 +67,7 @@ app.post('/api/individual', async (request, res) => {
 
         // Wait 30 seconds for data to become available before the first check
         console.log('Ingestion request sent. Waiting 30 seconds before first query attempt...');
-        await sleep(30000);
+        await sleep(40000);
 
         // Step 2: Poll for the data to confirm it was written
         console.log('Polling for data...');
@@ -80,6 +80,7 @@ app.post('/api/individual', async (request, res) => {
         let attempts = 0;
         const maxAttempts = 15; // 15 attempts * 20 seconds = 5 minutes
         let dataFound = false;
+        let successfulResponseData = null;
 
         while (attempts < maxAttempts && !dataFound) {
             attempts++;
@@ -94,9 +95,8 @@ app.post('/api/individual', async (request, res) => {
 
                 if (queryResponse.data && queryResponse.data.rowCount > 0) {
                     console.log('Data found!');
+                    successfulResponseData = queryResponse.data;
                     dataFound = true; // Exit loop
-                    res.json(queryResponse.data);
-                    return;
                 }
             } catch (pollError) {
                 console.error(`Attempt ${attempts} failed:`, pollError.message);
@@ -109,8 +109,9 @@ app.post('/api/individual', async (request, res) => {
             }
         }
 
-        // If loop finishes without finding data
-        if (!dataFound) {
+        if (dataFound) {
+            res.json(successfulResponseData);
+        } else {
             console.error('Polling timed out after 5 minutes.');
             res.status(408).json({ error: 'Confirmation query timed out. The data was ingested but could not be retrieved in time.' });
         }
