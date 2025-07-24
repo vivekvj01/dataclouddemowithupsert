@@ -13,6 +13,7 @@
         <div class="tab-header">
             <button class="tab-link active" onclick="openTab(event, 'Search')">Search Bookings</button>
             <button class="tab-link" onclick="openTab(event, 'Create')">Create Individual</button>
+            <button class="tab-link" onclick="openTab(event, 'Bulk')">Bulk Upsert</button>
         </div>
 
         <div id="Search" class="tab-content" style="display: block;">
@@ -37,6 +38,17 @@
                 <button type="submit">Create</button>
             </form>
             <div id="create-result"></div>
+        </div>
+
+        <div id="Bulk" class="tab-content">
+            <h2>Bulk Upsert from CSV</h2>
+            <form id="bulk-form">
+                <label for="csvFile">Select CSV File:</label>
+                <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+                <br>
+                <button type="submit">Upload</button>
+            </form>
+            <div id="bulk-result"></div>
         </div>
     </div>
 

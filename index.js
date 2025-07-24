@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const applink = require('@heroku/applink');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() }); // Store file in memory
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -98,6 +100,62 @@ app.get('/api/individual/status/:eventId', async (request, res) => {
     } catch (error) {
         console.error(`Error querying status for eventId ${eventId}:`, error.message);
         res.status(500).json({ error: 'Failed to query status.' });
+    }
+});
+
+app.post('/api/bulk/create-job', async (request, res) => {
+    try {
+        const authName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        const appLinkAddon = request.app.locals.sdk.addons.applink;
+        const org = await appLinkAddon.getAuthorization(authName);
+
+        const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/jobs`;
+        const token = org.dataCloudApi.accessToken;
+        const body = {
+            object: "HerokuIndividual",
+            operation: "upsert",
+            sourceName: "Heroku"
+        };
+
+        const response = await axios.post(url, body, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error creating bulk job:', error);
+        res.status(500).json({ error: 'Failed to create bulk job.' });
+    }
+});
+
+app.put('/api/bulk/upload-csv/:jobId', upload.single('csvFile'), async (request, res) => {
+    const { jobId } = request.params;
+    if (!request.file) {
+        return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    try {
+        const authName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        const appLinkAddon = request.app.locals.sdk.addons.applink;
+        const org = await appLinkAddon.getAuthorization(authName);
+
+        const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/jobs/${jobId}/batches`;
+        const token = org.dataCloudApi.accessToken;
+
+        const response = await axios.put(url, request.file.buffer, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'text/csv'
+            }
+        });
+
+        res.status(response.status).json({ message: 'CSV uploaded successfully.' });
+    } catch (error) {
+        console.error('Error uploading CSV:', error);
+        res.status(500).json({ error: 'Failed to upload CSV.' });
     }
 });
 

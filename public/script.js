@@ -181,4 +181,49 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
         const resultDiv = document.getElementById('create-result');
         resultDiv.innerHTML = `Error: ${error.message}`;
     }
+});
+
+document.getElementById('bulk-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const resultDiv = document.getElementById('bulk-result');
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        resultDiv.innerHTML = '<p style="color: red;">Please select a CSV file.</p>';
+        return;
+    }
+
+    resultDiv.innerHTML = 'Creating bulk job...';
+
+    try {
+        // Step 1: Create the bulk job
+        const jobResponse = await fetch('/api/bulk/create-job', { method: 'POST' });
+        if (!jobResponse.ok) {
+            const errorData = await jobResponse.json();
+            throw new Error(errorData.error || `Failed to create bulk job. Status: ${jobResponse.status}`);
+        }
+        const { id: jobId } = await jobResponse.json();
+        resultDiv.innerHTML = `Job created with ID: ${jobId}. Uploading CSV...`;
+
+        // Step 2: Upload the CSV file
+        const formData = new FormData();
+        formData.append('csvFile', file);
+
+        const uploadResponse = await fetch(`/api/bulk/upload-csv/${jobId}`, {
+            method: 'PUT',
+            body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || `Failed to upload CSV. Status: ${uploadResponse.status}`);
+        }
+
+        resultDiv.innerHTML = `<p style="color: green;">Successfully uploaded CSV for job ${jobId}. The data is now being processed by Data Cloud.</p>`;
+
+    } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        console.error('Bulk upsert error:', error);
+    }
 }); 
