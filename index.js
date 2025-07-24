@@ -65,9 +65,9 @@ app.post('/api/individual', async (request, res) => {
             }
         });
 
-        // Wait 60 seconds for data to become available before the first check
-        console.log('Ingestion request sent. Waiting 60 seconds before first query attempt...');
-        await sleep(60000);
+        // Wait 20 seconds for data to become available before the first check
+        console.log('Ingestion request sent. Waiting 20 seconds before first query attempt...');
+        await sleep(20000);
 
         // Step 2: Poll for the data to confirm it was written
         console.log('Polling for data...');
