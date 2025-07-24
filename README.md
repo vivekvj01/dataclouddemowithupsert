@@ -21,7 +21,13 @@ After deploying the application, follow these steps to configure it.
     heroku config:set DATA_CLOUD_ORG_DEVELOPER_NAME=<DEVELOPER_NAME> --app <your-app-name>
     ```
 
-3.  **Authorize the AppLink connection:**
+3.  **Set the Heroku App ID:**
+    This is required for certain AppLink operations. This command requires `jq` (a command-line JSON processor) to be installed.
+    ```sh
+    heroku config:set HEROKU_APP_ID="$(heroku apps:info --json --app <your-app-name> | jq -r '.app.id')"
+    ```
+
+4.  **Authorize the AppLink connection:**
     Run the following command, replacing `<your-app-name>` and `<DEVELOPER_NAME>` with your specific values.
 
     ```sh
