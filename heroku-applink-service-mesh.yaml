@@ -5,6 +5,7 @@ mesh:
       - /style.css
       - /script.js
       - /api/bookings
+      - /api/individual
       - /api-docs*
       - /bypassApi
       - /favicon*
