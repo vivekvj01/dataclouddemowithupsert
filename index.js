@@ -55,15 +55,33 @@ app.post('/api/individual', async (request, res) => {
 
         console.log('Ingestion API Body:', bodyAsString);
 
-        const response = await axios.post(url, bodyAsString, {
+        // Step 1: Ingest the data
+        await axios.post(url, bodyAsString, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-        res.json(response.data);
+
+        // Step 2: Query the data back to confirm it was written
+        console.log('Ingestion successful. Querying data back...');
+        const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
+        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__FirstName__c" = '${firstName}' AND "ssot__LastName__c" = '${lastName}' LIMIT 10`;
+
+        const queryBody = {
+            sql: query
+        };
+
+        const queryResponse = await axios.post(queryUrl, queryBody, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json(queryResponse.data);
     } catch (error) {
-        console.error('Error upserting to Data Cloud:', error);
+        console.error('Error in upsert/query process:', error);
         res.status(500).json({ error: 'Failed to create individual in Data Cloud' });
     }
 });
