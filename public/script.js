@@ -35,8 +35,14 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
         const data = await response.json();
 
         if (data && data.data && data.data.length > 0) {
-            const records = data.data;
-            const columns = data.metadata.columns;
+            const columns = data.metadata.columnNames;
+            const records = data.data.map(row => {
+                const record = {};
+                columns.forEach((col, index) => {
+                    record[col] = row[index];
+                });
+                return record;
+            });
 
             let html = '<table><thead><tr>';
             columns.forEach(column => {
