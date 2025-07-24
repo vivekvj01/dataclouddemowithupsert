@@ -11,4 +11,13 @@ After deploying the application using the button, you must authorize it to conne
     heroku plugins:install @heroku-cli/plugin-applink
     ```
 
-2.  **Authorize the AppLink connection:** 
+2.  **Authorize the AppLink connection:**
+    Run the following command, replacing `<your-app-name>` with the name of your Heroku app and `<DEVELOPER_NAME>` with the same value you provided for the `DATA_CLOUD_ORG_DEVELOPER_NAME` environment variable during setup.
+
+    ```sh
+    heroku datacloud:authorizations:add --app <your-app-name> <DEVELOPER_NAME>
+    ```
+
+    This command will initiate a browser-based login to your Salesforce org to grant the necessary permissions.
+
+Once authorized, your application will be able to query Data Cloud. 
