@@ -20,9 +20,9 @@ app.get('/', (req, res) => {
     res.send('Data Cloud Demo App is running.');
 });
 
+// Step 1: Start the ingestion and return an eventId immediately
 app.post('/api/individual', async (request, res) => {
     const { firstName, lastName } = request.body;
-
     if (!firstName || !lastName) {
         return res.status(400).json({ error: 'First name and last name are required' });
     }
@@ -32,92 +32,72 @@ app.post('/api/individual', async (request, res) => {
         const appLinkAddon = request.app.locals.sdk.addons.applink;
         const org = await appLinkAddon.getAuthorization(authName);
 
-        const sourceName = 'Heroku'; // The name of the Ingestion API source connector
-        const objectName = 'HerokuIndividual'; // Using the compliant object name from the schema
+        const sourceName = 'Heroku';
+        const objectName = 'HerokuIndividual';
         const url = `${org.dataCloudApi.domainUrl}/api/v1/ingest/sources/${sourceName}/${objectName}`;
         const token = org.dataCloudApi.accessToken;
-
         const eventId = uuidv4();
         const eventTime = new Date().toISOString();
 
         const body = {
             data: [{
-                FirstName: firstName, // Using compliant field name
-                LastName: lastName, // Using compliant field name
+                FirstName: firstName,
+                LastName: lastName,
                 eventId: eventId,
                 dateTime: eventTime,
-                deviceId: 'Heroku-WebApp', // Static value for server-side events
-                eventType: 'ProfileUpdate', // Custom event type
-                category: 'Profile', // Should be 'Profile' for this DLO
-                sessionId: eventId // Using eventId as a unique session for this event
+                deviceId: 'Heroku-WebApp',
+                eventType: 'ProfileUpdate',
+                category: 'Profile',
+                sessionId: eventId
             }]
         };
-
         const bodyAsString = JSON.stringify(body);
 
-        console.log('Ingestion API Body:', bodyAsString);
+        // Fire and forget the ingestion request. We are not waiting for it here.
+        axios.post(url, bodyAsString, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        }).catch(err => {
+            // Log errors on the server, but don't block the client response
+            console.error('Ingestion API error:', err.message);
+        });
 
-        // Step 1: Ingest the data
-        await axios.post(url, bodyAsString, {
+        // Immediately respond to the client with the eventId for polling
+        res.json({ eventId: eventId });
+
+    } catch (error) {
+        console.error('Error starting ingestion process:', error);
+        res.status(500).json({ error: 'Failed to start the ingestion process.' });
+    }
+});
+
+// Step 2: New endpoint for the client to poll for status
+app.get('/api/individual/status/:eventId', async (request, res) => {
+    const { eventId } = request.params;
+    try {
+        const authName = process.env.DATA_CLOUD_ORG_DEVELOPER_NAME;
+        const appLinkAddon = request.app.locals.sdk.addons.applink;
+        const org = await appLinkAddon.getAuthorization(authName);
+
+        const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
+        const token = org.dataCloudApi.accessToken;
+        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__Id__c" = '${eventId}' LIMIT 1`;
+        
+        const queryBody = { sql: query };
+        
+        const queryResponse = await axios.post(queryUrl, queryBody, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        // Wait 20 seconds for data to become available before the first check
-        console.log('Ingestion request sent. Waiting 20 seconds before first query attempt...');
-        await sleep(20000);
-
-        // Step 2: Poll for the data to confirm it was written
-        console.log('Polling for data...');
-        const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
-        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__Id__c" = '${eventId}' LIMIT 1`;
-        console.log('Confirmation Query:', query);
-
-        const queryBody = { sql: query };
-        let queryResponse;
-        let attempts = 0;
-        const maxAttempts = 15; // 15 attempts * 20 seconds = 5 minutes
-        let dataFound = false;
-        let successfulResponseData = null;
-
-        while (attempts < maxAttempts && !dataFound) {
-            attempts++;
-            console.log(`Query attempt ${attempts}...`);
-            try {
-                queryResponse = await axios.post(queryUrl, queryBody, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (queryResponse.data && queryResponse.data.rowCount > 0) {
-                    console.log('Data found!');
-                    successfulResponseData = queryResponse.data;
-                    dataFound = true; // Exit loop
-                }
-            } catch (pollError) {
-                console.error(`Attempt ${attempts} failed:`, pollError.message);
-                // Don't exit, just log the error and wait for the next attempt
-            }
-
-            if (!dataFound && attempts < maxAttempts) {
-                console.log('Data not found, waiting 20 seconds...');
-                await sleep(20000); // Wait 20 seconds
-            }
-        }
-
-        if (dataFound) {
-            res.json(successfulResponseData);
-        } else {
-            console.error('Polling timed out after 5 minutes.');
-            res.status(408).json({ error: 'Confirmation query timed out. The data was ingested but could not be retrieved in time.' });
-        }
+        res.json(queryResponse.data);
     } catch (error) {
-        console.error('Error in upsert/query process:', error);
-        res.status(500).json({ error: 'Failed to create individual in Data Cloud' });
+        console.error(`Error querying status for eventId ${eventId}:`, error.message);
+        res.status(500).json({ error: 'Failed to query status.' });
     }
 });
 
