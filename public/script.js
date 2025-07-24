@@ -33,6 +33,7 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
         }
 
         const data = await response.json();
+        console.log('API Response:', JSON.stringify(data, null, 2));
 
         if (data && data.data && data.data.length > 0) {
             const columns = data.metadata.columnNames;
