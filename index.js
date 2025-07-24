@@ -50,6 +50,8 @@ app.post('/api/individual', async (request, res) => {
             }]
         };
 
+        console.log('Ingestion API Body:', JSON.stringify(body, null, 2));
+
         const response = await axios.post(url, body, {
             headers: {
                 'Authorization': `Bearer ${token}`,
