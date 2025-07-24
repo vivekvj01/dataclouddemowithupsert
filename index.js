@@ -60,8 +60,6 @@ app.post('/api/bookings', async (request, res) => {
         //org.domainUrl
         const query = `SELECT Rate_Plan__c , Number_of_Adults__c ,Room_Number__c , Room_Type__c Type, ssot__TitleName__c  FROM "Reservation__dlm" JOIN "ssot__Individual__dlm" ON "Reservation__dlm"."Contact_ID__c" = "ssot__Individual__dlm"."ssot__Id__c" WHERE ( "ssot__Individual__dlm"."ssot__FirstName__c" || ' ' || "ssot__Individual__dlm"."ssot__LastName__c" ) = '${guestName}'`;
         // const result = await org.dataCloudApi.query(query); 
-        console.log(result);
-      
 
         // Construct the direct API request as we have a bug with the SDK query method https://gus.lightning.force.com/lightning/_classic/%2Fa07EE00002IrZXXYA3
         const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
