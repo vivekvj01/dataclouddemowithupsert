@@ -89,7 +89,12 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const resultDiv = document.getElementById('create-result');
-    resultDiv.innerHTML = 'Creating individual...';
+    resultDiv.innerHTML = `
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <span>Fetching inserted Data from Datacloud...</span>
+        </div>
+    `;
 
     try {
         const response = await fetch('/api/individual', {

@@ -8,6 +8,8 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const app = express();
 const port = process.env.PORT || 3000;
 app.locals.sdk = applink.init();
@@ -63,24 +65,43 @@ app.post('/api/individual', async (request, res) => {
             }
         });
 
-        // Step 2: Query the data back to confirm it was written
-        console.log('Ingestion successful. Querying data back...');
+        // Step 2: Poll for the data to confirm it was written
+        console.log('Ingestion successful. Polling for data...');
         const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
-        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__FirstName__c" = '${firstName}' AND "ssot__LastName__c" = '${lastName}' AND "ssot__Id__c" = '${eventId}' LIMIT 10`;
+        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__Id__c" = '${eventId}' LIMIT 1`;
         console.log('Confirmation Query:', query);
 
-        const queryBody = {
-            sql: query
-        };
+        const queryBody = { sql: query };
+        let queryResponse;
+        let attempts = 0;
+        const maxAttempts = 15; // 15 attempts * 20 seconds = 5 minutes
 
-        const queryResponse = await axios.post(queryUrl, queryBody, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+        while (attempts < maxAttempts) {
+            attempts++;
+            console.log(`Query attempt ${attempts}...`);
+            queryResponse = await axios.post(queryUrl, queryBody, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (queryResponse.data && queryResponse.data.rowCount > 0) {
+                console.log('Data found!');
+                res.json(queryResponse.data);
+                return;
             }
-        });
 
-        res.json(queryResponse.data);
+            if (attempts < maxAttempts) {
+                console.log('Data not found, waiting 20 seconds...');
+                await sleep(20000); // Wait 20 seconds
+            }
+        }
+
+        // If loop finishes without finding data
+        console.error('Polling timed out after 5 minutes.');
+        res.status(408).json({ error: 'Confirmation query timed out. The data was ingested but could not be retrieved in time.' });
+
     } catch (error) {
         console.error('Error in upsert/query process:', error);
         res.status(500).json({ error: 'Failed to create individual in Data Cloud' });
