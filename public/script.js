@@ -36,11 +36,20 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
         console.log('API Response:', JSON.stringify(data, null, 2));
 
         if (data && data.data && data.data.length > 0) {
-            const columns = data.metadata.columnNames;
+            // Create a mapping from column order to column name
+            const columnMap = {};
+            for (const key in data.metadata) {
+                if (data.metadata[key].placeInOrder !== undefined) {
+                    columnMap[data.metadata[key].placeInOrder] = key;
+                }
+            }
+            const columns = Object.values(columnMap);
+
+            // Convert array of arrays to array of objects
             const records = data.data.map(row => {
                 const record = {};
-                columns.forEach((col, index) => {
-                    record[col] = row[index];
+                row.forEach((value, index) => {
+                    record[columns[index]] = value;
                 });
                 return record;
             });
