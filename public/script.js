@@ -104,6 +104,11 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
         });
 
         if (!response.ok) {
+            if (response.status === 408) {
+                const timeoutMessage = "Sorry we successfully inserted the record however the ingestion API is Async on Datalcoud please reach out to the Datacloud team or check your for your data by logging into your salesforce Data cloud org";
+                resultDiv.innerHTML = `<p style="color: #d9a22c;">${timeoutMessage}</p>`;
+                return; // Stop further processing
+            }
             const errorData = await response.json();
             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
