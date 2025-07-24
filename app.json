@@ -1,0 +1,32 @@
+{
+  "name": "DataCloud Bookings Display",
+  "description": "A Heroku application to display booking data from Salesforce Data Cloud using Heroku AppLink.",
+  "keywords": [
+    "heroku",
+    "salesforce",
+    "datacloud",
+    "applink",
+    "node"
+  ],
+  "logo": "https://avatars.githubusercontent.com/u/23211?s=200&v=4",
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/heroku-applink-service-mesh"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-applink"
+    }
+  ],
+  "env": {
+    "DATA_CLOUD_ORG_DEVELOPER_NAME": {
+      "description": "The Developer Name of the authorized Salesforce Data Cloud organization.",
+      "required": true
+    }
+  }
+} 
