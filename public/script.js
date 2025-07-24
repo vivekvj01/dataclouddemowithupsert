@@ -104,9 +104,52 @@ document.getElementById('create-form').addEventListener('submit', async (event) 
         }
 
         const result = await response.json();
-        resultDiv.innerHTML = `Success: ${JSON.stringify(result, null, 2)}`;
+
+        if (result && result.data && result.data.length > 0) {
+            const resultDiv = document.getElementById('create-result');
+            // Create a mapping from column order to column name
+            const columnMap = {};
+            for (const key in result.metadata) {
+                if (result.metadata[key].placeInOrder !== undefined) {
+                    columnMap[result.metadata[key].placeInOrder] = key;
+                }
+            }
+            const columns = Object.values(columnMap);
+
+            // Convert array of arrays to array of objects
+            const records = result.data.map(row => {
+                const record = {};
+                row.forEach((value, index) => {
+                    record[columns[index]] = value;
+                });
+                return record;
+            });
+
+            let html = '<h3>Individual Created/Updated Successfully</h3><table><thead><tr>';
+            html += '<th>Status</th>'; // Header for the checkmark column
+            columns.forEach(column => {
+                html += `<th>${column}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            records.forEach(record => {
+                html += '<tr>';
+                html += '<td style="color: green; font-size: 1.5rem; text-align: center;">✓</td>'; // Green checkmark
+                columns.forEach(column => {
+                    const value = record[column];
+                    html += `<td>${value !== null ? value : ''}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            resultDiv.innerHTML = html;
+        } else {
+            resultDiv.innerHTML = 'Individual created, but no data was returned from the confirmation query.';
+        }
+
     } catch (error) {
-        resultDiv.innerHTML = `Error: ${error.message}`;
+        document.getElementById('create-result').innerHTML = `Error: ${error.message}`;
         console.error('Create individual error:', error);
     }
 }); 
