@@ -66,7 +66,7 @@ app.post('/api/individual', async (request, res) => {
         // Step 2: Query the data back to confirm it was written
         console.log('Ingestion successful. Querying data back...');
         const queryUrl = `${org.dataCloudApi.domainUrl}/api/v2/query`;
-        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__FirstName__c" = '${firstName}' AND "ssot__LastName__c" = '${lastName}' LIMIT 10`;
+        const query = `SELECT * FROM "ssot__Individual__dlm" WHERE "ssot__FirstName__c" = '${firstName}' AND "ssot__LastName__c" = '${lastName}' AND "ssot__Id__c" = '${eventId}' LIMIT 10`;
         console.log('Confirmation Query:', query);
 
         const queryBody = {
