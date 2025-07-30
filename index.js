@@ -179,18 +179,8 @@ app.post('/api/bookings', async (request, res) => {
         console.log(org.dataCloudApi.domainUrl);
         console.log(org.dataCloudApi.accessToken);
         // Construct the direct API request as we have a bug with the SDK query method https://gus.lightning.force.com/lightning/_classic/%2Fa07EE00002IrZXXYA3
-        const url = `${org.dataCloudApi.domainUrl}/api/v2/query`;
-        const token = org.dataCloudApi.accessToken;
-        const body = {
-            sql: query
-        };
-        const response = await axios.post(url, body, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        res.json(response.data);
+        const result = await org.dataCloudApi.query(query); 
+        res.json(result);
     } catch (error) {
         console.error('Error querying Data Cloud:', error);
         res.status(500).json({ error: 'Failed to fetch bookings from Data Cloud' });
