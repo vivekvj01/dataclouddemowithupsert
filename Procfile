@@ -1,1 +1,1 @@
-web: node index.js 
+web: APP_PORT=3000 heroku-applink-service-mesh npm start
