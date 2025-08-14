@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.APP_PORT || process.env.PORT || 3000;
 app.locals.sdk = applink.init();
 app.use(express.static('public'));
 app.use(bodyParser.json());
