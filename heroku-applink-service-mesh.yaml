@@ -6,9 +6,9 @@ mesh:
       - /script.js
       - /api/bookings
       - /api/individual
-      - pathPrefix: /api/individual/status/
-      - path: /api/bulk/create-job
-      - pathPrefix: /api/bulk/upload-csv/
+      - /api/individual/status/*
+      - /api/bulk/create-job
+      - /api/bulk/upload-csv/*
       - /api-docs*
       - /bypassApi
       - /favicon*
